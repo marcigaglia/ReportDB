@@ -1,11 +1,11 @@
 
 
-/*
+
 drop table CFG_EXP_FL01;
 drop table CFG_EXP_FL02;
 drop table CFG_EXP_FLHE;
 drop table REPORT_EXPORT;
-*/
+
 
 
 
@@ -20,6 +20,7 @@ drop table REPORT_EXPORT;
 	"TYPE" VARCHAR2(20 BYTE), 
 	"FORMAT" VARCHAR2(50 BYTE)
    );
+
 --------------------------------------------------------
 --  DDL for Table CFG_EXP_FL02
 --------------------------------------------------------
@@ -57,7 +58,7 @@ Insert into ALBERTOMARCIGAGLIA.CFG_EXP_FL01 (FLUSSO,POSITION,FIELD,TYPE,FORMAT) 
 Insert into ALBERTOMARCIGAGLIA.CFG_EXP_FL01 (FLUSSO,POSITION,FIELD,TYPE,FORMAT) values ('REP_01',5,'DTA_CREAZIONE','DATE','DD-MM-YYYY');
 
 SET DEFINE OFF;
-Insert into ALBERTOMARCIGAGLIA.CFG_EXP_FL02 (FLUSSO,TABELLA,CONDITION,SEPARATOR) values ('REP_01','ORAMN477NSV.IVC_ORDINE','WHERE DTA_CREAZIONE >= TRUNC(SYSDATE)-5',',');
+Insert into ALBERTOMARCIGAGLIA.CFG_EXP_FL02 (FLUSSO,TABELLA,CONDITION,SEPARATOR) values ('REP_01','ORAMN477NSV.IVC_ORDINE','WHERE DTA_CREAZIONE >= TO_DATE(''28082025'',''DDMMYYYY'')',';');
 
 SET DEFINE OFF;
 Insert into ALBERTOMARCIGAGLIA.CFG_EXP_FLHE (FLUSSO,POSITION,FIELD) values ('REP_01',0,'HEADER');
@@ -87,8 +88,8 @@ BEGIN
 
     return to_char(s_sql);
 END;
-
 /
+
 --------------------------------------------------------
 --  DDL for Function GETREPORTQUERY
 --------------------------------------------------------
@@ -110,8 +111,8 @@ WHERE F.FLUSSO = tbl GROUP BY F.FLUSSO, C.TABELLA, C.CONDITION;
 
     return s_sql;
 END;
-
 /
+
 
 --------------------------------------------------------
 --  DDL for Procedure SP_REP_EXPORT
@@ -124,12 +125,12 @@ as
  n_row NUMBER;
 BEGIN
     DELETE FROM REPORT_EXPORT WHERE FLUSSO = p_flusso;
-    INSERT INTO REPORT_EXPORT SELECT FLUSSO, POSITION, FIELD FROM CFG_EXP_FLHE WHERE FLUSSO = p_flusso;
+    
     a_data := 'INSERT INTO REPORT_EXPORT ' || getreportqueryconcat(p_flusso);
     --DBMS_OUTPUT.PUT_LINE(a_data);    
     execute immediate a_data;
     n_row := sql%rowcount;
-    --update REPORT_EXPORT set record = record || ' ' || n_row where r_id=0;
+    INSERT INTO REPORT_EXPORT SELECT FLUSSO, POSITION, FIELD FROM CFG_EXP_FLHE WHERE FLUSSO = p_flusso;
 END;
 
 /
